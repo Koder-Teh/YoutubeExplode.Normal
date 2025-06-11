@@ -343,6 +343,15 @@ var playlists = await youtube.Search.GetPlaylistsAsync("blender tutorials");
 var channels = await youtube.Search.GetChannelsAsync("blender tutorials");
 ```
 
+```csharp
+using YoutubeExplode;
+using YoutubeExplode.Common;
+
+var youtube = new YoutubeClient();
+
+var videoscount = await youtube.Search.GetVideosCountAsync("blender tutorials", 6);
+```
+
 Similarly to playlists, you can also enumerate results in batches by calling `Search.GetResultBatchesAsync(...)`:
 
 ```csharp
