@@ -17,14 +17,6 @@ Behind a layer of abstraction, this library works by scraping raw page data and 
 > 📝 Interested in the inner workings of this library?
 > See the [Reverse-Engineering YouTube](https://tyrrrz.me/blog/reverse-engineering-youtube-revisited) article.
 
-## Install
-
-- 📦 [NuGet](https://nuget.org/packages/YoutubeExplode): `dotnet add package YoutubeExplode`
-
-## Screenshots
-
-![demo](.assets/demo.png)
-
 ## Usage
 
 **YoutubeExplode** exposes its functionality through a single entry point — the `YoutubeClient` class.
