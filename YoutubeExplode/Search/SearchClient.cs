@@ -230,6 +230,94 @@ public class SearchClient(HttpClient http)
     }
 
     /// <summary>
+    /// Lists the video search results returned by the specified query, sorted by count.
+    /// </summary>
+    public async IAsyncEnumerable<VideoSearchResult> GetVideosCountAsync(
+        string searchQuery,
+        int count
+    )
+    {
+        var encounteredIds = new HashSet<string>(StringComparer.Ordinal);
+        var continuationToken = default(string?);
+
+        var results = new List<ISearchResult>();
+
+        var searchResults = await _controller.GetSearchResponseAsync(
+            searchQuery,
+            SearchFilter.Video,
+            continuationToken
+        );
+
+        // Video results
+        foreach (var videoData in searchResults.Videos.ToList().GetRange(0, count))
+        {
+            var videoId =
+                videoData.Id
+                ?? throw new YoutubeExplodeException("Failed to extract the video ID.");
+
+            // Don't yield the same result twice
+            if (!encounteredIds.Add(videoId))
+                continue;
+
+            var videoTitle =
+                videoData.Title
+                ?? throw new YoutubeExplodeException("Failed to extract the video title.");
+
+            var videoChannelTitle =
+                videoData.Author
+                ?? throw new YoutubeExplodeException("Failed to extract the video author.");
+
+            var videoChannelId =
+                videoData.ChannelId
+                ?? throw new YoutubeExplodeException("Failed to extract the video channel ID.");
+
+            var videoThumbnails = videoData
+                .Thumbnails.Select(t =>
+                {
+                    var thumbnailUrl =
+                        t.Url
+                        ?? throw new YoutubeExplodeException(
+                            "Failed to extract the video thumbnail URL."
+                        );
+
+                    var thumbnailWidth =
+                        t.Width
+                        ?? throw new YoutubeExplodeException(
+                            "Failed to extract the video thumbnail width."
+                        );
+
+                    var thumbnailHeight =
+                        t.Height
+                        ?? throw new YoutubeExplodeException(
+                            "Failed to extract the video thumbnail height."
+                        );
+
+                    var thumbnailResolution = new Resolution(thumbnailWidth, thumbnailHeight);
+
+                    return new Thumbnail(thumbnailUrl, thumbnailResolution);
+                })
+                .Concat(Thumbnail.GetDefaultSet(videoId))
+                .ToArray();
+
+            var video = new VideoSearchResult(
+                videoId,
+                videoTitle,
+                new Author(videoChannelId, videoChannelTitle),
+                videoData.Duration,
+                videoThumbnails
+            );
+
+            results.Add(video);
+        }
+
+        var gs = ((IAsyncEnumerable<Batch<ISearchResult>>)Batch.Create(results));
+
+        yield return (VideoSearchResult)gs.FlattenAsync().OfTypeAsync<VideoSearchResult>();
+
+        continuationToken = searchResults.ContinuationToken;
+    }
+
+    /// <summary>
     /// Enumerates batches of search results returned by the specified query.
     /// </summary>
     public IAsyncEnumerable<Batch<ISearchResult>> GetResultBatchesAsync(

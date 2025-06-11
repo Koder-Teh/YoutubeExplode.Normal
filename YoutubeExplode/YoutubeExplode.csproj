@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <IsTrimmable
       Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))"
@@ -15,6 +15,10 @@
     <PackageIcon>favicon.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="C:\Users\KoderTech\.nuget\packages\deorcify\1.1.0\contentFiles\cs\any\Deorcify\Initializer.cs" />
+    <Compile Remove="C:\Users\KoderTech\.nuget\packages\deorcify\1.1.0\contentFiles\cs\any\Deorcify\Initializer.Utils.cs" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="../favicon.png" Pack="true" PackagePath="" Visible="false" />
   </ItemGroup>
